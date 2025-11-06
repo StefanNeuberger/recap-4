@@ -14,8 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -125,6 +124,45 @@ class TodoServiceTest {
         assertEquals("Todo with id " + todoId + " not found", exception.getMessage());
         verify(todoRepository).findById(todoId);
         verify(todoRepository, never()).deleteById(anyString());
+    }
+
+
+    @Test
+    void updateTodo_shouldUpdateAndReturnTodo_whenTodoExists() {
+        // GIVEN
+        String todoId = "123";
+        CreateTodoDto dto = new CreateTodoDto("updated description", Todo.Status.DONE);
+        Todo existingTodo = new Todo("original description", Todo.Status.OPEN);
+        when(todoRepository.findById(todoId)).thenReturn(Optional.of(existingTodo));
+        when(todoRepository.save(any(Todo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // WHEN
+        Todo updatedTodo = todoService.updateTodo(todoId, dto);
+
+        // THEN
+        assertNotNull(updatedTodo);
+        assertEquals(dto.description(), updatedTodo.getDescription());
+        assertEquals(dto.status(), updatedTodo.getStatus());
+        assertNotNull(updatedTodo.getUpdatedAt());
+        verify(todoRepository).findById(todoId);
+        verify(todoRepository).save(existingTodo);
+    }
+
+    @Test
+    void updateTodo_shouldThrowResourceNotFoundException_whenTodoDoesNotExist() {
+        // GIVEN
+        String todoId = "999";
+        CreateTodoDto dto = new CreateTodoDto("updated description", Todo.Status.DONE);
+        when(todoRepository.findById(todoId)).thenReturn(Optional.empty());
+
+        // WHEN & THEN
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            todoService.updateTodo(todoId, dto);
+        });
+
+        assertEquals("Todo with id " + todoId + " not found", exception.getMessage());
+        verify(todoRepository).findById(todoId);
+        verify(todoRepository, never()).save(any(Todo.class));
     }
 
 
