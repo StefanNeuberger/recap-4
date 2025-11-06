@@ -74,7 +74,7 @@ public class TodoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     @Operation(
             summary = "Update todo",
             description = "Update todo by id"
