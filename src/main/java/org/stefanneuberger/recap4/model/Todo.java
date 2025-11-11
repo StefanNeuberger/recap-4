@@ -1,16 +1,10 @@
 package org.stefanneuberger.recap4.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Document(collection = "todos")
 public class Todo {
 
@@ -21,6 +15,21 @@ public class Todo {
     private Instant createdAt;
     private Instant updatedAt;
 
+    public Todo() {
+    }
+
+    public Todo(final String id,
+                final String description,
+                final Status status,
+                final Instant createdAt,
+                final Instant updatedAt) {
+        this.id = id;
+        this.description = description;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     public Todo(final String description, final Status status) {
         this.description = description;
         this.status = status;
@@ -28,10 +37,44 @@ public class Todo {
         this.updatedAt = Instant.now();
     }
 
-    public Todo(final String description, final Status status, final Instant updatedAt) {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
         this.status = status;
-        this.updatedAt = Instant.now();
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public enum Status {

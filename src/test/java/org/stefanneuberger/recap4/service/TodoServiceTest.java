@@ -1,8 +1,8 @@
 package org.stefanneuberger.recap4.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.stefanneuberger.recap4.dto.CreateTodoDto;
@@ -25,8 +25,12 @@ class TodoServiceTest {
     @Mock
     private TodoRepository todoRepository;
 
-    @InjectMocks
     private TodoService todoService;
+
+    @BeforeEach
+    void setUp() {
+        todoService = new TodoService(todoRepository, null, "https://api.openai.com/v1", "dummy-openai-placeholder", false);
+    }
 
     @Test
     void createTodo_shouldReturnTodo_whenCalledWithValidDto() {

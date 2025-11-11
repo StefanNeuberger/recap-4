@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 
 /**
  * Global exception handler to provide consistent error responses
- * Follows REST API best practices
- * <p>
  * Catches and handles exceptions thrown from all @RestController classes
  */
 @RestControllerAdvice
