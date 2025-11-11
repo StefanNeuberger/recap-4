@@ -1,12 +1,15 @@
 package org.stefanneuberger.recap4.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.stefanneuberger.recap4.dto.CreateTodoDto;
 import org.stefanneuberger.recap4.exception.ResourceNotFoundException;
+import org.stefanneuberger.recap4.model.OpenAIChoices;
+import org.stefanneuberger.recap4.model.OpenAIMessage;
+import org.stefanneuberger.recap4.model.OpenAIResponse;
 import org.stefanneuberger.recap4.model.Todo;
 import org.stefanneuberger.recap4.repository.TodoRepository;
 
@@ -16,6 +19,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -25,12 +30,11 @@ class TodoServiceTest {
     @Mock
     private TodoRepository todoRepository;
 
-    private TodoService todoService;
+    @Mock
+    private ChatGptService chatGptService;
 
-    @BeforeEach
-    void setUp() {
-        todoService = new TodoService(todoRepository, null, "https://api.openai.com/v1", "dummy-openai-placeholder", false);
-    }
+    @InjectMocks
+    private TodoService todoService;
 
     @Test
     void createTodo_shouldReturnTodo_whenCalledWithValidDto() {
@@ -38,6 +42,8 @@ class TodoServiceTest {
         CreateTodoDto dto = new CreateTodoDto("test", Todo.Status.OPEN);
         Todo todo = new Todo(dto.description(), dto.status());
         when(todoRepository.save(any(Todo.class))).thenReturn(todo);
+        when(chatGptService.sendChatCompletion(eq("gpt-4o-mini"), anyList()))
+                .thenReturn(buildResponse(dto.description()));
 
         // WHEN
         Todo actualTodo = todoService.createTodo(dto);
@@ -139,6 +145,8 @@ class TodoServiceTest {
         Todo existingTodo = new Todo("original description", Todo.Status.OPEN);
         when(todoRepository.findById(todoId)).thenReturn(Optional.of(existingTodo));
         when(todoRepository.save(any(Todo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(chatGptService.sendChatCompletion(eq("gpt-4o-mini"), anyList()))
+                .thenReturn(buildResponse(dto.description()));
 
         // WHEN
         Todo updatedTodo = todoService.updateTodo(todoId, dto);
@@ -169,5 +177,7 @@ class TodoServiceTest {
         verify(todoRepository, never()).save(any(Todo.class));
     }
 
-
+    private OpenAIResponse buildResponse(String content) {
+        return new OpenAIResponse(List.of(new OpenAIChoices(new OpenAIMessage("assistant", content))));
+    }
 }
