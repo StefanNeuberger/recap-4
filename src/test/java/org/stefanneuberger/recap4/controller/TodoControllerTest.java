@@ -9,10 +9,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.stefanneuberger.recap4.model.Todo;
 import org.stefanneuberger.recap4.repository.TodoRepository;
+import org.stefanneuberger.recap4.support.MongoTestContainerConfig;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class TodoControllerTest {
+class TodoControllerTest extends MongoTestContainerConfig {
 
     @Autowired
     private MockMvc mockMvc;
